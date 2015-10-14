@@ -81,14 +81,12 @@ public abstract class AsyncRecordWriter<KK, VV>
         if (splitHosts.length == 0) {
             log.error("Output host is empty");
             return;
-        } else if (splitHosts.length == 1) {
-            int port = AerospikeConfigUtil.getOutputPort(cfg);
-            hosts = new Host[]{new Host(splitHosts[0], port)};
         } else {
             hosts = new Host[splitHosts.length];
             for (int i = 0; i < hosts.length; i++) {
                 String[] hostPort = splitHosts[i].split(":");
-                hosts[i] = new Host(hostPort[0], Integer.parseInt(hostPort[1]));
+                int port = hostPort.length < 2 ? AerospikeConfigUtil.getOutputPort(cfg) : Integer.parseInt(hostPort[1]);
+                hosts[i] = new Host(hostPort[0], port);
             }
         }
 
