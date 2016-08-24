@@ -18,46 +18,31 @@
 
 package com.aerospike.hadoop.mapreduce;
 
+import com.aerospike.client.AerospikeClient;
+import com.aerospike.client.Host;
+import com.aerospike.client.async.AsyncClientPolicy;
+import com.aerospike.client.cluster.Node;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapreduce.*;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-import com.aerospike.client.async.AsyncClientPolicy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.apache.hadoop.conf.Configuration;
-
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Reporter;
-
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
-
-import com.aerospike.client.AerospikeClient;
-import com.aerospike.client.AerospikeException;
-import com.aerospike.client.cluster.Node;
-import com.aerospike.client.Host;
-import com.aerospike.client.policy.ClientPolicy;
-import com.aerospike.client.policy.ScanPolicy;
 
 /**
  * An {@link InputFormat} for data stored in an Aerospike database.
  */
 public class AerospikeInputFormat
-    extends InputFormat<AerospikeKey, AerospikeRecord>
-    implements org.apache.hadoop.mapred.InputFormat<AerospikeKey,
-                                                        AerospikeRecord> {
+        extends InputFormat<AerospikeKey, AerospikeRecord>
+        implements org.apache.hadoop.mapred.InputFormat<AerospikeKey,
+        AerospikeRecord> {
 
     private static final Log log =
-        LogFactory.getLog(AerospikeInputFormat.class);
+            LogFactory.getLog(AerospikeInputFormat.class);
 
     // ---------------- NEW API ----------------
 
@@ -66,19 +51,19 @@ public class AerospikeInputFormat
         Configuration cfg = context.getConfiguration();
         JobConf jobconf = AerospikeConfigUtil.asJobConf(cfg);
         return Arrays.asList((InputSplit[]) getSplits(jobconf,
-                                                      jobconf.getNumMapTasks()));
+                jobconf.getNumMapTasks()));
     }
 
     public RecordReader<AerospikeKey, AerospikeRecord>
-        createRecordReader(InputSplit split, TaskAttemptContext context)
-        throws IOException, InterruptedException {
+    createRecordReader(InputSplit split, TaskAttemptContext context)
+            throws IOException, InterruptedException {
         return new AerospikeRecordReader();
     }
 
     // ---------------- OLD API ----------------
 
     public org.apache.hadoop.mapred.InputSplit[]
-        getSplits(JobConf job, int numSplits) throws IOException {
+    getSplits(JobConf job, int numSplits) throws IOException {
         try {
             Host[] hosts;
             String host = AerospikeConfigUtil.getInputHost(job);
@@ -109,16 +94,16 @@ public class AerospikeInputFormat
                 numrangeBegin = AerospikeConfigUtil.getInputNumRangeBegin(job);
                 numrangeEnd = AerospikeConfigUtil.getInputNumRangeEnd(job);
             }
-            
+
             log.info(String.format("using: %s %s %s",
-                                   Arrays.toString(hosts), namespace, setName));
+                    Arrays.toString(hosts), namespace, setName));
             AsyncClientPolicy policy = new AsyncClientPolicy();
 
             policy.user = "";
             policy.password = "";
             policy.failIfNotConnected = true;
             AerospikeClient client =
-                AsyncClientSingleton.getInstance(policy, hosts);
+                    AsyncClientSingleton.getInstance(policy, hosts);
             Node[] nodes = client.getNodes();
             int nsplits = nodes.length;
             if (nsplits == 0) {
@@ -145,24 +130,23 @@ public class AerospikeInputFormat
                     }
                 }
                 splits[ii] = new AerospikeSplit(oper, nodeName,
-                                                nodehost.name, nodehost.port,
-                                                namespace, setName, binNames,
-                                                numrangeBin, numrangeBegin,
-                                                numrangeEnd);
+                        nodehost.name, nodehost.port,
+                        namespace, setName, binNames,
+                        numrangeBin, numrangeBegin,
+                        numrangeEnd);
                 log.info("split: " + splits[ii]);
             }
             return splits;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new IOException("exception in getSplits", ex);
         }
     }
 
     public org.apache.hadoop.mapred.RecordReader<AerospikeKey, AerospikeRecord>
-        getRecordReader(org.apache.hadoop.mapred.InputSplit split,
-                        JobConf job,
-                        Reporter reporter
-                        ) throws IOException {
+    getRecordReader(org.apache.hadoop.mapred.InputSplit split,
+                    JobConf job,
+                    Reporter reporter
+    ) throws IOException {
         return new AerospikeRecordReader((AerospikeSplit) split);
     }
 
