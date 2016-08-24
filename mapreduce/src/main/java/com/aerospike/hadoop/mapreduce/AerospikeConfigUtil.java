@@ -54,6 +54,11 @@ public class AerospikeConfigUtil {
     public static final String OUTPUT_BINNAME = "aerospike.output.binname";
     public static final String OUTPUT_KEYNAME = "aerospike.output.keyname";
 
+    // ---------------- OTHER ----------------
+
+    public static final String ASYNC_MAX_COMMANDS = "aerospike.async.commands.max";
+    public static final int DEFAULT_ASYNC_MAX_COMMANDS = 200;
+
     // ---------------- INPUT ----------------
 
     public static void setInputHost(Configuration conf, String host) {
@@ -244,6 +249,19 @@ public class AerospikeConfigUtil {
         String keyname = conf.get(OUTPUT_KEYNAME);
         log.info("using " + OUTPUT_KEYNAME + " = " + keyname);
         return keyname;
+    }
+
+    // ---------------- OTHER ----------------
+
+    public static void setAsyncMaxCommands(Configuration conf, int maxCommands) {
+        log.info("setting " + ASYNC_MAX_COMMANDS + " to " + maxCommands);
+        conf.setInt(ASYNC_MAX_COMMANDS, maxCommands);
+    }
+
+    public static int getAsyncMaxCommands(Configuration conf) {
+        int maxCommands = conf.getInt(ASYNC_MAX_COMMANDS, DEFAULT_ASYNC_MAX_COMMANDS);
+        log.info("using " + ASYNC_MAX_COMMANDS + " = " + maxCommands);
+        return maxCommands;
     }
 
     // ---------------- COMMON ----------------
