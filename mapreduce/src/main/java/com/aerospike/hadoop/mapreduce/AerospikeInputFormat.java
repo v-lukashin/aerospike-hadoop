@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.aerospike.client.async.AsyncClientPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -79,10 +80,24 @@ public class AerospikeInputFormat
     public org.apache.hadoop.mapred.InputSplit[]
         getSplits(JobConf job, int numSplits) throws IOException {
         try {
+            Host[] hosts;
+            String host = AerospikeConfigUtil.getInputHost(job);
+
+            String[] splitHosts = host.split(",");
+
+            if (splitHosts.length == 0) {
+                log.error("Output host is empty");
+                return null;
+            } else {
+                hosts = new Host[splitHosts.length];
+                for (int i = 0; i < hosts.length; i++) {
+                    String[] hostPort = splitHosts[i].split(":");
+                    int port = hostPort.length < 2 ? AerospikeConfigUtil.getOutputPort(job) : Integer.parseInt(hostPort[1]);
+                    hosts[i] = new Host(hostPort[0], port);
+                }
+            }
 
             String oper = AerospikeConfigUtil.getInputOperation(job);
-            String host = AerospikeConfigUtil.getInputHost(job);
-            int port = AerospikeConfigUtil.getInputPort(job);
             String namespace = AerospikeConfigUtil.getInputNamespace(job);
             String setName = AerospikeConfigUtil.getInputSetName(job);
             String[] binNames = AerospikeConfigUtil.getInputBinNames(job);
@@ -95,12 +110,15 @@ public class AerospikeInputFormat
                 numrangeEnd = AerospikeConfigUtil.getInputNumRangeEnd(job);
             }
             
-            log.info(String.format("using: %s %d %s %s",
-                                   host, port, namespace, setName));
+            log.info(String.format("using: %s %s %s",
+                                   Arrays.toString(hosts), namespace, setName));
+            AsyncClientPolicy policy = new AsyncClientPolicy();
 
+            policy.user = "";
+            policy.password = "";
+            policy.failIfNotConnected = true;
             AerospikeClient client =
-                AerospikeClientSingleton.getInstance(new ClientPolicy(),
-                                                     host, port);
+                AsyncClientSingleton.getInstance(policy, hosts);
             Node[] nodes = client.getNodes();
             int nsplits = nodes.length;
             if (nsplits == 0) {
