@@ -103,7 +103,7 @@ public abstract class AsyncRecordWriter<KK, VV>
         policy.asyncMaxCommands = AerospikeConfigUtil.getAsyncMaxCommands(cfg);
         policy.failIfNotConnected = true;
 
-        client = AsyncClientSingleton.getInstance(policy, hosts);
+        client = new AsyncClient(policy, hosts);
         writePolicy = new WritePolicy();
     }
 
