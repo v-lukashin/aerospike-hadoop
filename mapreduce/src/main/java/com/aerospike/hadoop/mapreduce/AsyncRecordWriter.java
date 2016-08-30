@@ -121,5 +121,6 @@ public abstract class AsyncRecordWriter<KK, VV>
     protected void doClose(Progressable progressable) {
         log.info("doClose");
         initialized = false;
+        client.close();
     }
 }
