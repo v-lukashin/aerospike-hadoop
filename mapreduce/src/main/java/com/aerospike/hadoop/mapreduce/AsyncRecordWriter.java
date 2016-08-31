@@ -103,7 +103,7 @@ public abstract class AsyncRecordWriter<KK, VV>
         policy.asyncMaxCommands = AerospikeConfigUtil.getAsyncMaxCommands(cfg);
         policy.failIfNotConnected = true;
 
-        client = new AsyncClient(policy, hosts);
+        client = AsyncClientSingleton.getInstance(policy, hosts);
         writePolicy = new WritePolicy();
     }
 
@@ -121,6 +121,5 @@ public abstract class AsyncRecordWriter<KK, VV>
     protected void doClose(Progressable progressable) {
         log.info("doClose");
         initialized = false;
-        client.close();
     }
 }
