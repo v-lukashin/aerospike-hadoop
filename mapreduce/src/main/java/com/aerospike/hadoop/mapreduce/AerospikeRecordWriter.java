@@ -93,6 +93,8 @@ public abstract class AerospikeRecordWriter<KK, VV>
         client = AerospikeClientSingleton.getInstance(policy, host, port);
 
         writePolicy = new WritePolicy();
+        writePolicy.sendKey = AerospikeConfigUtil.getSendKey(cfg);
+        writePolicy.expiration = AerospikeConfigUtil.getExpirationTime(cfg);
     }
 
     @Override

@@ -20,7 +20,6 @@ package com.aerospike.hadoop.mapreduce;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.hadoop.conf.Configuration;
 
 public class AerospikeConfigUtil {
@@ -59,6 +58,12 @@ public class AerospikeConfigUtil {
     public static final String ASYNC_MAX_COMMANDS = "aerospike.async.commands.max";
     public static final int DEFAULT_ASYNC_MAX_COMMANDS = 200;
 
+    public static final String EXPIRATION_TIME = "aerospike.expiration.time";
+    public static final int DEFAULT_EXPIRATION_TIME = 0;
+
+    public static final String SEND_KEY = "aerospike.send.key";
+    public static final boolean DEFAULT_SEND_KEY = true;
+
     // ---------------- INPUT ----------------
 
     public static void setInputHost(Configuration conf, String host) {
@@ -92,7 +97,7 @@ public class AerospikeConfigUtil {
         String namespace = conf.get(INPUT_NAMESPACE);
         if (namespace == null)
             throw new UnsupportedOperationException
-                ("you must set the input namespace");
+                    ("you must set the input namespace");
         log.info("using " + INPUT_NAMESPACE + " = " + namespace);
         return namespace;
     }
@@ -126,7 +131,7 @@ public class AerospikeConfigUtil {
         if (!operation.equals("scan") &&
                 !operation.equals("numrange"))
             throw new UnsupportedOperationException
-                ("input operation must be 'scan' or 'numrange'");
+                    ("input operation must be 'scan' or 'numrange'");
         log.info("setting " + INPUT_OPERATION + " to " + operation);
         conf.set(INPUT_OPERATION, operation);
     }
@@ -136,7 +141,7 @@ public class AerospikeConfigUtil {
         if (!operation.equals("scan") &&
                 !operation.equals("numrange"))
             throw new UnsupportedOperationException
-                ("input operation must be 'scan' or 'numrange'");
+                    ("input operation must be 'scan' or 'numrange'");
         log.info("using " + INPUT_OPERATION + " = " + operation);
         return operation;
     }
@@ -161,7 +166,7 @@ public class AerospikeConfigUtil {
         long begin = conf.getLong(INPUT_NUMRANGE_BEGIN, INVALID_LONG);
         if (begin == INVALID_LONG && getInputOperation(conf).equals("numrange"))
             throw new UnsupportedOperationException
-                ("missing input numrange begin");
+                    ("missing input numrange begin");
         log.info("using " + INPUT_NUMRANGE_BEGIN + " = " + begin);
         return begin;
     }
@@ -175,7 +180,7 @@ public class AerospikeConfigUtil {
         long end = conf.getLong(INPUT_NUMRANGE_END, INVALID_LONG);
         if (end == INVALID_LONG && getInputOperation(conf).equals("numrange"))
             throw new UnsupportedOperationException
-                ("missing input numrange end");
+                    ("missing input numrange end");
         log.info("using " + INPUT_NUMRANGE_END + " = " + end);
         return end;
     }
@@ -213,7 +218,7 @@ public class AerospikeConfigUtil {
         String namespace = conf.get(OUTPUT_NAMESPACE);
         if (namespace == null)
             throw new UnsupportedOperationException
-                ("you must set the output namespace");
+                    ("you must set the output namespace");
         log.info("using " + OUTPUT_NAMESPACE + " = " + namespace);
         return namespace;
     }
@@ -264,12 +269,34 @@ public class AerospikeConfigUtil {
         return maxCommands;
     }
 
+    public static void setExpirationTime(Configuration conf, int expTime) {
+        log.info("setting " + EXPIRATION_TIME + " to " + expTime);
+        conf.setInt(EXPIRATION_TIME, expTime);
+    }
+
+    public static int getExpirationTime(Configuration conf) {
+        int expTime = conf.getInt(EXPIRATION_TIME, DEFAULT_EXPIRATION_TIME);
+        log.info("using " + EXPIRATION_TIME + " = " + expTime);
+        return expTime;
+    }
+
+    public static void setSendKey(Configuration conf, boolean sendKey) {
+        log.info("setting " + SEND_KEY + " to " + sendKey);
+        conf.setBoolean(SEND_KEY, sendKey);
+    }
+
+    public static boolean getSendKey(Configuration conf) {
+        boolean sendKey = conf.getBoolean(SEND_KEY, DEFAULT_SEND_KEY);
+        log.info("using " + SEND_KEY + " = " + sendKey);
+        return sendKey;
+    }
+
     // ---------------- COMMON ----------------
 
     public static org.apache.hadoop.mapred.JobConf asJobConf(Configuration cfg) {
         return cfg instanceof org.apache.hadoop.mapred.JobConf
-            ? (org.apache.hadoop.mapred.JobConf) cfg
-            : new org.apache.hadoop.mapred.JobConf(cfg);
+                ? (org.apache.hadoop.mapred.JobConf) cfg
+                : new org.apache.hadoop.mapred.JobConf(cfg);
     }
 }
 

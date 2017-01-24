@@ -105,6 +105,8 @@ public abstract class AsyncRecordWriter<KK, VV>
 
         client = AsyncClientSingleton.getInstance(policy, hosts);
         writePolicy = new WritePolicy();
+        writePolicy.sendKey = AerospikeConfigUtil.getSendKey(cfg);
+        writePolicy.expiration = AerospikeConfigUtil.getExpirationTime(cfg);
     }
 
     @Override
