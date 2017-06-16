@@ -23,9 +23,9 @@ public class AsyncClientPool {
         String key = sb.toString();
         AsyncClient client;
 
-        if (instances.contains(key)) client = instances.get(key);
+        if (instances.containsKey(key)) client = instances.get(key);
         else synchronized (instances) {
-            if (instances.contains(key)) client = instances.get(key);
+            if (instances.containsKey(key)) client = instances.get(key);
             else instances.put(key, client = new AsyncClient(policy, hosts));
         }
         return client;
