@@ -4,7 +4,19 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.aerospike</groupId>
   <artifactId>aerospike-mapreduce</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <encoding>UTF-8</encoding>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
@@ -21,7 +33,7 @@
     <dependency>
       <groupId>com.aerospike</groupId>
       <artifactId>aerospike-client</artifactId>
-      <version>3.0.31</version>
+      <version>4.0.8</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
